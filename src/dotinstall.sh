@@ -286,7 +286,6 @@ install_bin ()
 
 # Test parameters : we need to know if it's a git repo or a file
 [[ $1 == "uninstall" || $1 == "-u" ]] && { install=0; printf "Activate uninstall mode\n"; shift; }
-echo $install
 [ "$*" = "" ] && die "You must specify a bootstrap file" 10 1
 
 if [[ $* =~ ^https://.*\.git$ || $* =~ ^ssh://.*\.git$ ]]
