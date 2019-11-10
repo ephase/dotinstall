@@ -4,6 +4,11 @@ dotinstall - manage dotfiles
 `dotinstall` is another little script made for install or uninstall dotfiles by
 creating symbolic link. You need to provide a boostrap script for it.
 
+## Installation
+
+Just put the `dotinstall.sh` script in a folder accessible via the `$PATH`
+command. I choose to put it in `~/.local/bin/`.
+
 ## How to use
 
 ```
