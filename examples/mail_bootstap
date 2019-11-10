@@ -1,0 +1,39 @@
+# this is an example of a bootstrap file for mail dotfile
+# here is the strucure of files :
+#
+#   .
+#   ├── bin
+#   │   └── check_mails.sh
+#   ├── bootstrap
+#   ├── config
+#   │   ├── afw
+#   │   │   └── config
+#   │   ├── mbsync
+#   │   │   └── config
+#   │   ├── msmtp
+#   │   │   └── config
+#   │   ├── neomutt
+#   │   │   ├── base16.muttrc
+#   │   │   ├── keybinding.neomuttrc
+#   │   │   ├── mailcap
+#   │   │   └── neomuttrc
+#   │   └── notmuch
+#   │       └── config
+#   ├── README.md
+#   └── services
+#       ├── mail.service
+#       └── mail.timer
+
+# check required executables
+check_bin "neomutt notmuch mbsync afew msmtp"
+
+# symblink folder which contains configurations folders to $HOME/.config/ 
+process_dirs config ${HOME}/.config
+
+# Symblink and install systemd services, first the service that doesn't need to
+# be activated then the timer which need
+install_service "services/mail.service"
+install_service "services/mail.timer" 1
+
+# Symblink an executable to $HOME\.local\bin\
+install_bin "bin/check_mails.sh"
