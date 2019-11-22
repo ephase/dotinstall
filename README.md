@@ -103,6 +103,21 @@ Install a systemd service as user, can be useful for timers for example :
 service_install "services/myservice.service" 1
 ```
 
+### define_env
+
+Define an evirnment variable into the file `~/.config/environment`, you have to
+source this file on your `.bashrc` or your `.zprofile`.
+
+ - **input*** :
+     - `$1` : name of the variable
+     - `$2` : value, `""` if empty
+ - **output** : no value, but exit the function if the variale is already
+     defined (install) or not in file (uninstall)
+
+```
+define_env "NOTMUCH_CONFIG" "~/.config/notmuch"
+```
+
 ### Avaible variables
 
  - `$repository` : the root folder of the repository

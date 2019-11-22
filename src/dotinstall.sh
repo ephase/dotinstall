@@ -6,7 +6,7 @@ BIN_DIRECTORY="${HOME}/.local/bin/"
 LIB_DIRECTORY="${HOME}/.local/lib/"
 SYD_DIRECTORY="${HOME}/.config/systemd/user"
 DOTREPO="${HOME}/.config/dotrepo/"
-
+ENV_FILE="${HOME}/.config/environment"
 
 # DEFAULT VALUES
 OVERWRITE_DIRECTORY=0
@@ -278,6 +278,32 @@ install_bin ()
         private:create_symblink "$source" "$dest"
     else
         private:remove_symblink "$dest"
+    fi
+}
+
+define_env ()
+{
+    # Put a couple name value into $ENV_FILE file or remove it
+    # on uninstall mode
+    # $1 variable name
+    # $2 value
+
+    [ -z $1 ] && { error "You must define a name"; return; }
+    [ ! -f $ENV_FILE ] && touch $ENV_FILE
+    if [ $install -eq 1 ]
+    then
+        printf "\nCreate an environment variable %s : " "$1"
+        [ $(grep -c -m 1 $1 $ENV_FILE) -eq 1 ] && { error "already exist"; return; }
+        local line
+        line="export ${1}=\"${2}\""
+        echo "$line" >> $ENV_FILE
+        printf "\e[32mdone\e[0m\n"
+    else
+        printf "\nRemove an environment variable %s : " "$1"
+        [ $(grep -c -m 1 $1 $ENV_FILE) -eq 0 ] && { error "not exist"; return; }
+        sed -i "/^export $1=*/d" $ENV_FILE
+        printf "\e[32mdone\e[0m\n"
+
     fi
 }
 

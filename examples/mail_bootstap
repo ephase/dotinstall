@@ -37,3 +37,6 @@ install_service "services/mail.timer" 1
 
 # Symblink an executable to $HOME\.local\bin\
 install_bin "bin/check_mails.sh"
+
+# Define the environment variable for Notmuch
+define_env "NOTMUCH_CONFIG" "~/.config/notmuch"
