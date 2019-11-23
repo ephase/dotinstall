@@ -14,6 +14,7 @@ OVERWRITE_FILE=0
 
 repository=""
 install=1
+update=0
 
 usage ()
 {
@@ -310,25 +311,64 @@ define_env ()
 ## create bin directory
 [ ! -d $BIN_DIRECTORY ] && mkdir -p $BIN_DIRECTORY || printf "bin exist\n"
 
-# Test parameters : we need to know if it's a git repo or a file
-[[ $1 == "uninstall" || $1 == "-u" ]] && { install=0; printf "Activate uninstall mode\n"; shift; }
+# define mode : install, uninstall or update
+case $1 in
+    "uninstall")
+        install=0
+        printf "Activate uninstall mode\n"
+        shift
+        ;;
+
+    "update")
+        update=1;
+        printf "Activate update mode\n"
+        shift
+        ;;
+esac
+
 [ "$*" = "" ] && die "You must specify a bootstrap file" 10 1
 
 if [[ $* =~ ^https://.*\.git$ || $* =~ ^ssh://.*\.git$ ]]
 then
-    bin_check "git"
+    check_bin "git"
     
     # Check
-    localdir="${DOTREPO}/$(basename $* .git)"
-    [ -d "$localdir" ] && die "destination folder for git repository already exist" 21 0
-    
-    private:clone_repository "$*" "$localdir"
-    if [ -f "${localdir}/bootstrap" ]
+    localrepo="${DOTREPO}/$(basename $* .git)"
+    if [ $update -eq 1 ]
     then
-        $0 "${localdir}/bootstrap"
-        exit $?
+        [ ! -d $localrepo ] && die "The local repository does not exist" 22 0
+        
+        # For update we need to uninstall repo, then git pull and install
+        current_dir=$(pwd)
+        $0 uninstall ${locarepo}/bootstrap
+        cd $localrepo
+        pwd
+        git pull
+        [ $? -ne 0 ] && die "$localrepo does not seems to be a git repo" 23 0
+        $0 bootstrap
+        cd $current_dir
     else
-        die "Can't find a \`boostrap\` file in ${repo}" 22 0
+        if [ $install -eq 0 ]
+        then
+            if [ -f "$localrepo" ]
+            then
+                $0 uninstall ${localrepo}/bootstrap
+                printf "\nRemove $localrepo folder : "
+                ret=$(rm -rf $localrepo)
+                [ $? -eq 0 ] && printf " \e[32mdone\e[0m\n" || error "$ret"
+            else
+                die "destination folder for git repository not exist in $DOTREPO" 21 0
+            fi
+        else
+            private:clone_repository "$*" "$localrepo"
+            if [ -f "${localrepo}/bootstrap" ]
+            then
+                $0 "${localrepo}/bootstrap"
+                exit $?
+            else
+                die "Can't find a \`boostrap\` file in ${repo}" 22 0
+            fi
+        fi
     fi
 else
     [ ! -f "$*" ] && die "$* does not exist" 10 1
