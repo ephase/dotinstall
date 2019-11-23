@@ -2,10 +2,10 @@
 
 # Personnal Dotfiles install script
 
-BIN_DIRECTORY="${HOME}/.local/bin/"
-LIB_DIRECTORY="${HOME}/.local/lib/"
+BIN_DIRECTORY="${HOME}/.local/bin"
+LIB_DIRECTORY="${HOME}/.local/lib"
 SYD_DIRECTORY="${HOME}/.config/systemd/user"
-DOTREPO="${HOME}/.config/dotrepo/"
+DOTREPO="${HOME}/.config/dotrepo"
 ENV_FILE="${HOME}/.config/environment"
 
 # DEFAULT VALUES
@@ -326,7 +326,7 @@ case $1 in
         ;;
 esac
 
-[ "$*" = "" ] && die "You must specify a bootstrap file" 10 1
+[ "$*" = "" ] && die "You must specify a bootstrap file or repo" 10 1
 
 if [[ $* =~ ^https://.*\.git$ || $* =~ ^ssh://.*\.git$ ]]
 then
