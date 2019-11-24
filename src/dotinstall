@@ -351,7 +351,7 @@ esac
 
 if [[ $* =~ ^https://.*\.git$ || $* =~ ^ssh://.*\.git$ ]]
 then
-    check_bin "git"
+    required_commands "git"
     
     # Check
     localrepo="${DOTREPO}/$(basename $* .git)"
