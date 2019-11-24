@@ -1,12 +1,15 @@
 dotinstall - manage dotfiles
 ----------------------------
 
-`dotinstall` is another little script made for install or uninstall dotfiles by
-creating symbolic link. You need to provide a boostrap script for it.
+`dotinstall` is another little script made for install, uninstall or update
+dotfiles by creating symbolic links. You need to provide a boostrap script.
+
+`dotinstall` aim to manage each application dotfiles separately, by this way you
+can choose what to install on your machines.
 
 ## Installation
 
-Just put the `dotinstall.sh` script in a folder accessible via the `$PATH`
+Just put the `dotinstall` script in a folder accessible via the `$PATH`
 command. I choose to put it in `~/.local/bin/`.
 
 ## How to use
@@ -15,14 +18,14 @@ command. I choose to put it in `~/.local/bin/`.
 dotinstall bootstrap
 ```
 
-The script can use git to retrieve a repository :
+The script can use git URI (https or ssh) to retrieve a repository :
 
 ```
 dotinstall https://git.example.com/user/repo.git
 ```
 
 You can uninstall the dotfiles by adding the `uninstall` keyword before the
-bootstrap file :
+bootstrap file or git URI:
 
 ```
 dotinstall uninstall bootstrap
@@ -37,8 +40,8 @@ dotinstall update bootstrap
 ## Boostrap file syntax
 
 `bootstrap` is a simple bash script sourced by `dotinstall`. The `bootstrap`
-file contains instructions and can call functions and use variables from
-dotinstall:
+file contains instructions : you can call functions and use variables from
+dotinstall.
 
 ### functions
 
@@ -51,7 +54,7 @@ This function check if binary file is avaible in the `PATH`.
      found with exit code 128
 
 ```
-bin_check "ls mv git"
+required_commands "ls mv git"
 ```
 
 #### conf_process_dirs
@@ -149,7 +152,7 @@ This script return 0 if there is not error.
 
 ### Script relative error code
 
- - **128** : a binary checked by `chek_bin()` is not present
+ - **128** : a binary checked by `required_commands()` is not present
 
 ## Licence
 
