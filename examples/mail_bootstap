@@ -25,7 +25,7 @@
 #       └── mail.timer
 
 # check required executables
-check_bin "neomutt notmuch mbsync afew msmtp"
+required_commands "neomutt notmuch mbsync afew msmtp"
 
 # symblink folder which contains configurations folders to $HOME/.config/ 
 process_dirs config ${HOME}/.config

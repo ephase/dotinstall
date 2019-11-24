@@ -42,7 +42,7 @@ dotinstall:
 
 ### functions
 
-#### bin_check
+#### required_commands
 
 This function check if binary file is avaible in the `PATH`.
 
