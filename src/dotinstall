@@ -269,6 +269,8 @@ required_commands ()
     # Check if an executable exist
     # $1 executables separated with spaces
 
+    # if uninstall, we don't need to process required commands.
+    [ $install -eq 0 ] && return
     printf "Checking required programs :\n"
     for p in $1
     do
@@ -325,9 +327,10 @@ define_env ()
     fi
 }
 
-## create bin directory
-[ ! -d $BIN_DIRECTORY ] && mkdir -p $BIN_DIRECTORY || printf "bin exist\n"
-[ ! -d $CACHE_DIR ] && mkdir -p $CACHE_DIR || printf "cache exist\n"
+## create bin and cache direcories
+[ ! -d $BIN_DIRECTORY ] && mkdir -p $BIN_DIRECTORY
+[ ! -d $CACHE_DIR ] && mkdir -p $CACHE_DIR
+
 # define mode : install, uninstall or update
 case $1 in
     "uninstall")
