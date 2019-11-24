@@ -28,6 +28,12 @@ bootstrap file :
 dotinstall uninstall bootstrap
 ```
 
+Or update with `update` even in git mode
+
+```
+dotinstall update bootstrap
+```
+
 ## Boostrap file syntax
 
 `bootstrap` is a simple bash script sourced by `dotinstall`. The `bootstrap`
@@ -127,6 +133,23 @@ define_env "NOTMUCH_CONFIG" "~/.config/notmuch"
      to `~/.vim`, it will be erased fist. If 0, an error message will be
      displayed.
  - `OVERWRITE_FILE` : do the same with file
+
+## Return code
+
+This script return 0 if there is not error.
+
+ - **1** : no bootstrap specified.
+ - **2** : boostrap file not found
+
+### Git relative error codes
+
+ - **20** : can't clone dotfile git repository.
+ - **24** : can't update dotfile git repository.
+ - **25** : local git repository does not exist.
+
+### Script relative error code
+
+ - **128** : a binary checked by `chek_bin()` is not present
 
 ## Licence
 

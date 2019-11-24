@@ -342,7 +342,7 @@ case $1 in
         ;;
 esac
 
-[ "$*" = "" ] && die "You must specify a bootstrap file or repo" 10 1
+[ "$*" = "" ] && die "You must specify a bootstrap file or repo" 1 1
 
 if [[ $* =~ ^https://.*\.git$ || $* =~ ^ssh://.*\.git$ ]]
 then
@@ -364,7 +364,7 @@ else
     bootstrap_file="$*"
 fi
 
-[ ! -f "$bootstrap_file" ] && die "$bootstrap_file does not exist" 10 1
+[ ! -f "$bootstrap_file" ] && die "$bootstrap_file does not exist" 2 1
 
 private:get_bootstrap_path "$bootstrap_file"
 
