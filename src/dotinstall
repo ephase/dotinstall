@@ -207,23 +207,24 @@ process_files () {
     # $1: source directory
     # $2: destination directory
     
-    local dest="${repository}/$1"
-    printf "Process files from directory %s:\n" "$1"
+    local source="${repository}/$1"
+    local dest="$2"
+    printf "Process files from directory %s:\n" "$source"
     
-    [ ! -d "$dest" ] && { error "  -> source is not a directory"; return; }
+    [ ! -d "$source" ] && { error "  -> source is not a directory"; return; }
     [ ! -d "$dest" ] && { error "  -> destination is not a directory"; return; }
 
     while read d
     do
         if [ $install -eq 1 ]
         then
-            private:create_symblink "$d" "$2/$(basename "$d")"
+            private:create_symblink "${source}/$d" "${dest}/$(basename "$d")"
         else
             local symblink="${2}/$(basename ${d})"
             private:remove_symblink "$symblink"
         fi
 
-    done < <(ls -1 "$dest")
+    done < <(ls -A -1 "$source")
 }
 
 
