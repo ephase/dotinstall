@@ -5,6 +5,8 @@
 BIN_DIRECTORY="${HOME}/.local/bin"
 LIB_DIRECTORY="${HOME}/.local/lib"
 SYD_DIRECTORY="${HOME}/.config/systemd/user"
+CACHE_DIR="${HOME}/.cache/dotinstall"
+
 DOTREPO="${HOME}/.config/dotrepo"
 ENV_FILE="${HOME}/.config/environment"
 
@@ -148,12 +150,26 @@ private:create_symblink ()
 private:clone_repository ()
 {
     # Clone a git repository and test if it has a bootstrap file
-    # $* url
+    # $1 url
+    # $2 local repository
     # return : local directory
 
     local ret
     ret=$(git clone -q "$1" "${2}" 2>&1)
     [[ $? -ne 0 ]] && die "Can't clone_repository : $ret" 20 0
+}
+
+private:update_repository ()
+{
+    # Update a git repository
+    # $1 : local repository
+    
+    [ ! -d "$1" ] && die "Git update : directory $1 does not exist" 25 0
+    local current_dir=$(pwd)
+    local ret
+    cd "$1"
+    ret=$(git pull 2>&1)
+    [[ $? -ne 0 ]] && die "Can't update repository : $ret" 24 0
 }
 
 process_dirs () {
@@ -167,7 +183,7 @@ process_dirs () {
     local dest="${repository}/$1"
     printf "\nProcess directory %s\n" "$1"
 
-    [ ! -d "$dest" ] && { error "  -> source is not a directory"; return; }
+    [ ! -d "$dest" ] && { error "  -> source is not a directory $dest"; return; }
     [ ! -d "$dest" ] && { error "  -> destination is not a directory"; return; }
 
     while read d
@@ -310,7 +326,7 @@ define_env ()
 
 ## create bin directory
 [ ! -d $BIN_DIRECTORY ] && mkdir -p $BIN_DIRECTORY || printf "bin exist\n"
-
+[ ! -d $CACHE_DIR ] && mkdir -p $CACHE_DIR || printf "cache exist\n"
 # define mode : install, uninstall or update
 case $1 in
     "uninstall")
@@ -336,45 +352,56 @@ then
     localrepo="${DOTREPO}/$(basename $* .git)"
     if [ $update -eq 1 ]
     then
-        [ ! -d $localrepo ] && die "The local repository does not exist" 22 0
-        
-        # For update we need to uninstall repo, then git pull and install
-        current_dir=$(pwd)
-        $0 uninstall ${locarepo}/bootstrap
-        cd $localrepo
-        pwd
-        git pull
-        [ $? -ne 0 ] && die "$localrepo does not seems to be a git repo" 23 0
-        $0 bootstrap
-        cd $current_dir
+        private:update_repository "$localrepo"
     else
-        if [ $install -eq 0 ]
+        if [ $install -eq 1 ]
         then
-            if [ -f "$localrepo" ]
-            then
-                $0 uninstall ${localrepo}/bootstrap
-                printf "\nRemove $localrepo folder : "
-                ret=$(rm -rf $localrepo)
-                [ $? -eq 0 ] && printf " \e[32mdone\e[0m\n" || error "$ret"
-            else
-                die "destination folder for git repository not exist in $DOTREPO" 21 0
-            fi
-        else
             private:clone_repository "$*" "$localrepo"
-            if [ -f "${localrepo}/bootstrap" ]
-            then
-                $0 "${localrepo}/bootstrap"
-                exit $?
-            else
-                die "Can't find a \`boostrap\` file in ${repo}" 22 0
-            fi
         fi
     fi
+    bootstrap_file="${localrepo}/bootstrap"
 else
-    [ ! -f "$*" ] && die "$* does not exist" 10 1
-    private:get_bootstrap_path "$*"
-
-    # Include bootstrap
-    source $*
+    bootstrap_file="$*"
 fi
+
+[ ! -f "$bootstrap_file" ] && die "$bootstrap_file does not exist" 10 1
+
+private:get_bootstrap_path "$bootstrap_file"
+
+cache_file="${CACHE_DIR}/$(echo $repository | tr '/' '_')"
+
+if [ $update -eq 1 ]
+then
+    # Update mode
+    if [ -f "$cache_file" ]
+    then
+        if [ $(diff "$bootstrap_file" "$cache_file" > /dev/null; echo $?;) -eq 0 ]
+        then
+            printf "There is no difference between cached copy and the bootstrap file\n";
+            exit 0
+        else
+            # Uninstall old files
+            install=0
+            source "$cache_file"
+            rm "$cache_file"
+            install=1
+        fi
+    else
+        error "Can't found cached copy of bootstrap file, just install"
+    fi
+fi
+
+cp "$bootstrap_file" "$cache_file"
+
+# Include bootstrap
+source "$bootstrap_file"
+
+# remove cached file and repo if uninstall
+if [ $install -eq 0 ]
+then
+    printf "\nRemove files for complete uninstall\n"
+    rm $cache_file
+    rm -rf $repository
+fi
+
 exit 0
